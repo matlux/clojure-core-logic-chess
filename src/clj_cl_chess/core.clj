@@ -67,7 +67,8 @@
 
 (defn render-board [board-state]
   (let [line "+----+----+----+----+----+----+----+----+"
-        pieces-pos (into {} board-state)]
+        pieces-pos board-state ;(into {} board-state)
+        ]
     (apply str "\n" line "\n"
            (map #(let [pos (c1dto2d (dec %))
                        c (get pieces-pos pos "  ")]
@@ -81,12 +82,12 @@
 (display-board '([[1 0] "p"] [[2 2] "*"] [[0 1] "&"]))
 
 (defn moves2state [f-mov pos c]
-  (cons [pos c] (map #(vector % "* ") (apply f-mov pos))))
+  (into {} (cons [pos c] (map #(vector % "* ") (apply f-mov pos)))))
 
 (defn char2state [pieces-list]
-                  (filter #(not= " " (second %)) (map #(vector (c1dto2d %1) %2 ) (range 64) pieces-list)))
+                  (into {} (filter #(not= " " (second %)) (map #(vector (c1dto2d %1) %2 ) (range 64) pieces-list))))
 
-(def init-board (char2state ["br" "bb" "bn" "bq" "bk" "bn" "bb" "br"
+(def init-board-state (char2state ["br" "bb" "bn" "bq" "bk" "bn" "bb" "br"
                              "bp" "bp" "bp" "bp" "bp" "bp" "bp" "bp"
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
@@ -97,16 +98,44 @@
 
 
 ;
-(display-board init-board)
+(display-board init-board-state)
 
-(display-board (moves2state knight-moves [2 1] "k"))
+(display-board (moves2state knight-moves [2 1] "k "))
 
-(display-board (cons [[0 1] "k"] (map #(vector % "*") (knight-moves 0 1))))
+(display-board (into {} (cons [[0 1] "k "] (map #(vector % "* ") (knight-moves 0 1)))))
 
 
 (knight-moves 0 1)
 (bishop-moves 5 5)
 
+(defn get-type [piece-pos] (let [res (second (seq (second piece-pos)))]
+                             (println res)
+                             res))
 
-(rook-moves 5 5)
+(defn get-moves [state pos]
+  (let [piece (get state pos)] 1))
 
+(defmulti get-available-moves (fn [state pos] (get-type (vector pos (get state pos)))))
+(defmethod get-available-moves \n [state pos] (let [piece (get state pos)] (apply knight-moves pos)))
+(defmethod get-available-moves \b [state pos] (let [piece (get state pos)] (apply bishop-moves pos)))
+(defmethod get-available-moves \r [state pos] (let [piece (get state pos)] (apply rook-moves pos)))
+
+
+((fn [state pos] (get-type (vector pos (get state pos)))) init-board-state [0 1])
+
+(get-available-moves  init-board-state [0 0])
+
+
+(defn make-move [state from to]
+  (let [piece (get state from)] (assoc (dissoc state from) to piece)))
+
+
+
+;(defn valid-move? [state from to]
+;)
+
+(display-board (make-move init-board-state [1 1] [2 1]))
+
+
+
+;(use 'clj-cl-chess.core :reload)
