@@ -2,11 +2,11 @@
   (:refer-clojure :exclude [== >= <= > < =])
   (:use clojure.core.logic
         [clojure.core.logic.arithmetic :only [>= <= > < =]])
-
+)
 (defn foo
   "I don't do a whole lot."
   [x]
-  (println x "Hello, World!"))2
+  (println x "Hello, World!"))
 
 (defn knight-moves 
 "Returns the available moves for a knight (on a 8x8 grid) given its current position." 
@@ -86,14 +86,14 @@
 (defn char2state [pieces-list]
                   (filter #(not= " " (second %)) (map #(vector (c1dto2d %1) %2 ) (range 64) pieces-list)))
 
-(def init-board (char2state ["r" "b" "kn" "q" "K" "k" "b" "r"
+(def init-board (char2state ["r" "b" "n" "q" "K" "n" "b" "r"
                              "p" "p" "p" "p" "p" "p" "p" "p"
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              "p" "p" "p" "p" "p" "p" "p" "p"
-                             "r" "b" "k" "q" "K" "k" "b" "r"]))
+                             "r" "b" "n" "q" "K" "n" "b" "r"]))
 
 
 ;
@@ -107,4 +107,6 @@
 (knight-moves 0 1)
 (bishop-moves 5 5)
 
+
 (rook-moves 5 5)
+
