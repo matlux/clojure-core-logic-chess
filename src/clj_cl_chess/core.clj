@@ -66,11 +66,11 @@
 
 
 (defn render-board [board-state]
-  (let [line "+---+---+---+---+---+---+---+---+"
+  (let [line "+----+----+----+----+----+----+----+----+"
         pieces-pos (into {} board-state)]
     (apply str "\n" line "\n"
            (map #(let [pos (c1dto2d (dec %))
-                       c (get pieces-pos pos " ")]
+                       c (get pieces-pos pos "  ")]
                    (if (zero? (mod % 8))
                            (format "| %s |\n%s\n" c line)
                            (format "| %s " c))) (range 1 65)))))
@@ -81,19 +81,19 @@
 (display-board '([[1 0] "p"] [[2 2] "*"] [[0 1] "&"]))
 
 (defn moves2state [f-mov pos c]
-  (cons [pos c] (map #(vector % "*") (apply f-mov pos))))
+  (cons [pos c] (map #(vector % "* ") (apply f-mov pos))))
 
 (defn char2state [pieces-list]
                   (filter #(not= " " (second %)) (map #(vector (c1dto2d %1) %2 ) (range 64) pieces-list)))
 
-(def init-board (char2state ["r" "b" "n" "q" "K" "n" "b" "r"
-                             "p" "p" "p" "p" "p" "p" "p" "p"
+(def init-board (char2state ["br" "bb" "bn" "bq" "bk" "bn" "bb" "br"
+                             "bp" "bp" "bp" "bp" "bp" "bp" "bp" "bp"
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
-                             "p" "p" "p" "p" "p" "p" "p" "p"
-                             "r" "b" "n" "q" "K" "n" "b" "r"]))
+                             "wp" "wp" "wp" "wp" "wp" "wp" "wp" "wp"
+                             "wr" "wb" "wn" "wq" "wk" "wn" "wb" "wr"]))
 
 
 ;
