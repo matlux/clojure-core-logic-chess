@@ -26,6 +26,8 @@
   ) 
   (== q [a b]))))) ;return each solution in a vector [x, y]
 
+
+
 (def ^:const board (vec (range 8)))
 
 (defn rook-moves 
@@ -36,7 +38,9 @@
  (conde 
   [(membero a board) (!= a x) (== b y)]  ;y remains constant
   [(membero b board) (!= b y) (== a x)]) ;x remains constant
-     (== q [a b]))))
+ (== q [a b]))))
+
+
 
 (defn bishop-moves 
 "Returns the available moves for a bishop (on a 8x8 grid) given its current position and direction."
@@ -115,14 +119,72 @@
 (defn get-moves [state pos]
   (let [piece (get state pos)] 1))
 
+(defn rook-moves2 
+"Returns the available moves for a rook (on a 8x8 grid) given its current position."
+[state x y]
+ (run* [q]
+ (fresh [a b]
+ (conde 
+  [(membero a board) (!= a x) (== b y)]  ;y remains constant
+  [(membero b board) (!= b y) (== a x)]) ;x remains constant
+ (== q [a b]))))
+
 (defmulti get-available-moves (fn [state pos] (get-type (vector pos (get state pos)))))
 (defmethod get-available-moves \n [state pos] (let [piece (get state pos)] (apply knight-moves pos)))
 (defmethod get-available-moves \b [state pos] (let [piece (get state pos)] (apply bishop-moves pos)))
-(defmethod get-available-moves \r [state pos] (let [piece (get state pos)] (apply rook-moves pos)))
+(defmethod get-available-moves \r [state pos] (let [piece (get state pos)] (apply rook-moves2 state pos)))
+;(defmethod get-available-moves \p [state pos] (let [piece (get state pos)] (apply pawn-moves pos)))
 
+(into '() init-board-state)
+                                        ;(doc everyg)
+(comment
+(defn memo [x l out]
+  (conde
+    [(emptyo l) u#]
+    [(firsto l x) (== l out)]
+    [(fresh (d)
+            (resto l d)
+            (memo x d out))])
+  )
+
+(defn rembero [x l out]
+  (conde
+   [(emptyo l) (== '() out)]
+   [(firsto l x) (resto l out)]
+   [(fresh (res)
+           (fresh (d)
+                  (resto l d)
+                  (rembero x d res))
+           (fresh (a)
+                  (firsto l a)
+                  (conso a res out)))]))
+
+(run 1 [out]
+     (fresh (y)
+            (rembero 'peas (list 'a 'b y 'd 'peas 'e) out)))
+
+(run 1 [out]
+     (memo 'tofu (list 'a 'b 'tofu 'd 'tofu 'e) out))
+;(comment
+  (run* [q]
+        (let [                          ;line (repeatedly 8 lvar)
+              color \w
+              oponent \b
+              line-state (list 0 \w \w 0 \s 0 \b 0)
+              constraints (reverse (reduce #(cons (cond (clojure.core/= %2 color) \m
+                                                        (clojure.core/= %2 oponent) \o
+                                                        :else %2) %) '() line-state))]
+          (memo \s constraints q)))
+)
+
+(run* [q]
+      (== q 1))
+
+(reduce #(cons %2 %) '() '(1 2 3 4))
 
 ((fn [state pos] (get-type (vector pos (get state pos)))) init-board-state [0 1])
 
+(display-board (into {} (map #(vector % "* ") (get-available-moves  init-board-state [0 0]))))
 (get-available-moves  init-board-state [0 0])
 
 
@@ -137,5 +199,5 @@
 (display-board (make-move init-board-state [1 1] [2 1]))
 
 
-
+;(ns clj-cl-chess.core)
 ;(use 'clj-cl-chess.core :reload)
