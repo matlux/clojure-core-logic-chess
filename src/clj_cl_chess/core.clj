@@ -1,58 +1,68 @@
-( ns clj-cl-chess.core
-  (:refer-clojure :exclude [== >= <= > < =])
+(ns clj-cl-chess.core
+  (:refer-clojure :exclude [==])
   (:use clojure.core.logic
-        [clojure.core.logic.arithmetic :only [>= <= > < =]])
+        [clojure.core.logic.arithmetic :as arithmetic])
+  )
+
+
+(comment
+ (ns clj-cl-chess.core
+   (:refer-clojure :exclude [==])
+   (:use clojure.core.logic))
 )
+
 (defn foo
   "I don't do a whole lot."
   [x]
   (println x "Hello, World!"))
 
-(defn knight-moves 
-"Returns the available moves for a knight (on a 8x8 grid) given its current position." 
- [x y]
-(let [xmax 8 ymax 8]
- (run* [q] ;bring back all possible solutions
- (fresh [a b] ;like 'let' but for logic variables
-  (conde ;;like OR
-    [(< (+ x 1) xmax) (< (+ y 2) ymax) (== a (+ x 1)) (== b (+ y 2))] ;1st possibility
-    [(< (+ x 2) xmax) (< (+ y 1) ymax) (== a (+ x 2)) (== b (+ y 1))] ;2nd possibility
-    [(< (+ x 2) xmax) (>= (- y 1)   0) (== a (+ x 2)) (== b (- y 1))] ;3rd possibility
-    [(< (+ x 1) xmax) (>= (- y 2)   0) (== a (+ x 1)) (== b (- y 2))] ;4th possibility
-    [(>= (- x 1)   0) (>= (- y 2)   0) (== a (- x 1)) (== b (- y 2))] ;5th possibility
-    [(>= (- x 2)   0) (>= (- y 1)   0) (== a (- x 2)) (== b (- y 1))] ;6th possibility
-    [(>= (- x 2)   0) (< (+ y 1) ymax) (== a (- x 2)) (== b (+ y 1))] ;7th possibility
-    [(>= (- x 1)   0) (< (+ y 2) ymax) (== a (- x 1)) (== b (+ y 2))] ;8th possibility
-  ) 
-  (== q [a b]))))) ;return each solution in a vector [x, y]
+(defn knight-moves
+  "Returns the available moves for a knight (on a 8x8 grid) given its current position."
+  [x y]
+  (let [xmax 8 ymax 8]
+    (run* [q] ;bring back all possible solutions
+          (fresh [a b] ;like 'let' but for logic variables
+                 (conde ;;like OR
+                  [(arithmetic/< (+ x 1) xmax) (arithmetic/< (+ y 2) ymax) (== a (+ x 1)) (== b (+ y 2))] ;1st possibility
+                  [(arithmetic/< (+ x 2) xmax) (arithmetic/< (+ y 1) ymax) (== a (+ x 2)) (== b (+ y 1))] ;2nd possibility
+                  [(arithmetic/< (+ x 2) xmax) (arithmetic/>= (- y 1)   0) (== a (+ x 2)) (== b (- y 1))] ;3rd possibility
+                  [(arithmetic/< (+ x 1) xmax) (arithmetic/>= (- y 2)   0) (== a (+ x 1)) (== b (- y 2))] ;4th possibility
+                  [(arithmetic/>= (- x 1)   0) (arithmetic/>= (- y 2)   0) (== a (- x 1)) (== b (- y 2))] ;5th possibility
+                  [(arithmetic/>= (- x 2)   0) (arithmetic/>= (- y 1)   0) (== a (- x 2)) (== b (- y 1))] ;6th possibility
+                  [(arithmetic/>= (- x 2)   0) (arithmetic/< (+ y 1) ymax) (== a (- x 2)) (== b (+ y 1))] ;7th possibility
+                  [(arithmetic/>= (- x 1)   0) (arithmetic/< (+ y 2) ymax) (== a (- x 1)) (== b (+ y 2))] ;8th possibility
+                  )
+                 (== q [a b])))))
+
+ ;return each solution in a vector [x, y]
 
 
 
 (def ^:const board (vec (range 8)))
 
-(defn rook-moves 
+(defn rook-moves
 "Returns the available moves for a rook (on a 8x8 grid) given its current position."
 [x y]
  (run* [q]
  (fresh [a b]
- (conde 
+ (conde
   [(membero a board) (!= a x) (== b y)]  ;y remains constant
   [(membero b board) (!= b y) (== a x)]) ;x remains constant
  (== q [a b]))))
 
 
 
-(defn bishop-moves 
+(defn bishop-moves
 "Returns the available moves for a bishop (on a 8x8 grid) given its current position and direction."
 [x y]
-(run* [q] 
-(fresh [a b] 
-  (membero a board) 
+(run* [q]
+(fresh [a b]
+  (membero a board)
   (membero b board)
-   (!= a x) 
+   (!= a x)
    (!= b y)
    (project [x y a b]
-    (== (Math/abs (- x a)) 
+    (== (Math/abs (- x a))
         (Math/abs (- y b)))
     (== q [a b])))))
 
@@ -91,14 +101,18 @@
 (defn char2state [pieces-list]
                   (into {} (filter #(not= " " (second %)) (map #(vector (c1dto2d %1) %2 ) (range 64) pieces-list))))
 
-(def init-board-state (char2state ["br" "bb" "bn" "bq" "bk" "bn" "bb" "br"
+(def raw-init-board-state ["br" "bb" "bn" "bq" "bk" "bn" "bb" "br"
                              "bp" "bp" "bp" "bp" "bp" "bp" "bp" "bp"
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              " " " " " " " " " " " " " " " "
                              "wp" "wp" "wp" "wp" "wp" "wp" "wp" "wp"
-                             "wr" "wb" "wn" "wq" "wk" "wn" "wb" "wr"]))
+                             "wr" "wb" "wn" "wq" "wk" "wn" "wb" "wr"])
+
+(def raw-board-type2 (map #(if (= " " %) nil %) raw-init-board-state))
+
+(def init-board-state (char2state raw-init-board-state))
 
 
 ;
@@ -119,12 +133,12 @@
 (defn get-moves [state pos]
   (let [piece (get state pos)] 1))
 
-(defn rook-moves2 
+(defn rook-moves2
 "Returns the available moves for a rook (on a 8x8 grid) given its current position."
 [state x y]
  (run* [q]
  (fresh [a b]
- (conde 
+ (conde
   [(membero a board) (!= a x) (== b y)]  ;y remains constant
   [(membero b board) (!= b y) (== a x)]) ;x remains constant
  (== q [a b]))))
@@ -137,35 +151,13 @@
 
 (into '() init-board-state)
                                         ;(doc everyg)
+
+
+(println "test")
+
+
+
 (comment
-(defn memo [x l out]
-  (conde
-    [(emptyo l) u#]
-    [(firsto l x) (== l out)]
-    [(fresh (d)
-            (resto l d)
-            (memo x d out))])
-  )
-
-(defn rembero [x l out]
-  (conde
-   [(emptyo l) (== '() out)]
-   [(firsto l x) (resto l out)]
-   [(fresh (res)
-           (fresh (d)
-                  (resto l d)
-                  (rembero x d res))
-           (fresh (a)
-                  (firsto l a)
-                  (conso a res out)))]))
-
-(run 1 [out]
-     (fresh (y)
-            (rembero 'peas (list 'a 'b y 'd 'peas 'e) out)))
-
-(run 1 [out]
-     (memo 'tofu (list 'a 'b 'tofu 'd 'tofu 'e) out))
-;(comment
   (run* [q]
         (let [                          ;line (repeatedly 8 lvar)
               color \w
@@ -175,7 +167,7 @@
                                                         (clojure.core/= %2 oponent) \o
                                                         :else %2) %) '() line-state))]
           (memo \s constraints q)))
-)
+  )
 
 (run* [q]
       (== q 1))
@@ -201,3 +193,14 @@
 
 ;(ns clj-cl-chess.core)
 ;(use 'clj-cl-chess.core :reload)
+;(use 'clojure.core.logic)
+
+;(pprint (+ 1 2))
+(comment
+ (let [chess-dom raw-board-type2
+       cells (repeatedly 4 lvar)]
+   (run* [q]
+         (everyg #(membero % chess-dom)  cells)
+         (== q cells)))
+
+)
