@@ -1,42 +1,12 @@
 (ns clj-cl-chess.core
   (:refer-clojure :exclude [==])
-  (:use clojure.core.logic
-        [clojure.core.logic.arithmetic :as arithmetic])
-  )
-
-
-(comment
- (ns clj-cl-chess.core
-   (:refer-clojure :exclude [==])
-   (:use clojure.core.logic))
+  (:use clojure.core.logic)
 )
 
 (defn foo
   "I don't do a whole lot."
   [x]
   (println x "Hello, World!"))
-
-(defn knight-moves
-  "Returns the available moves for a knight (on a 8x8 grid) given its current position."
-  [x y]
-  (let [xmax 8 ymax 8]
-    (run* [q] ;bring back all possible solutions
-          (fresh [a b] ;like 'let' but for logic variables
-                 (conde ;;like OR
-                  [(arithmetic/< (+ x 1) xmax) (arithmetic/< (+ y 2) ymax) (== a (+ x 1)) (== b (+ y 2))] ;1st possibility
-                  [(arithmetic/< (+ x 2) xmax) (arithmetic/< (+ y 1) ymax) (== a (+ x 2)) (== b (+ y 1))] ;2nd possibility
-                  [(arithmetic/< (+ x 2) xmax) (arithmetic/>= (- y 1)   0) (== a (+ x 2)) (== b (- y 1))] ;3rd possibility
-                  [(arithmetic/< (+ x 1) xmax) (arithmetic/>= (- y 2)   0) (== a (+ x 1)) (== b (- y 2))] ;4th possibility
-                  [(arithmetic/>= (- x 1)   0) (arithmetic/>= (- y 2)   0) (== a (- x 1)) (== b (- y 2))] ;5th possibility
-                  [(arithmetic/>= (- x 2)   0) (arithmetic/>= (- y 1)   0) (== a (- x 2)) (== b (- y 1))] ;6th possibility
-                  [(arithmetic/>= (- x 2)   0) (arithmetic/< (+ y 1) ymax) (== a (- x 2)) (== b (+ y 1))] ;7th possibility
-                  [(arithmetic/>= (- x 1)   0) (arithmetic/< (+ y 2) ymax) (== a (- x 1)) (== b (+ y 2))] ;8th possibility
-                  )
-                 (== q [a b])))))
-
- ;return each solution in a vector [x, y]
-
-
 
 (def ^:const board (vec (range 8)))
 
@@ -93,8 +63,6 @@
 (defn display-board [board-state]
   (print (render-board board-state)))
 
-(display-board '([[1 0] "p"] [[2 2] "*"] [[0 1] "&"]))
-
 (defn moves2state [f-mov pos c]
   (into {} (cons [pos c] (map #(vector % "* ") (apply f-mov pos)))))
 
@@ -116,15 +84,17 @@
 
 
 ;
-(display-board init-board-state)
+;(display-board init-board-state)
 
-(display-board (moves2state knight-moves [2 1] "k "))
+;(display-board '([[1 0] "p"] [[2 2] "*"] [[0 1] "&"]))
 
-(display-board (into {} (cons [[0 1] "k "] (map #(vector % "* ") (knight-moves 0 1)))))
+;(display-board (moves2state rook-moves [2 1] "k "))
+
+;(display-board (into {} (cons [[0 1] "k "] (map #(vector % "* ") (knight-moves 0 1)))))
 
 
-(knight-moves 0 1)
-(bishop-moves 5 5)
+;;(knight-moves 0 1)
+;(bishop-moves 5 5)
 
 (defn get-type [piece-pos] (let [res (second (seq (second piece-pos)))]
                              (println res)
@@ -144,16 +114,16 @@
  (== q [a b]))))
 
 (defmulti get-available-moves (fn [state pos] (get-type (vector pos (get state pos)))))
-(defmethod get-available-moves \n [state pos] (let [piece (get state pos)] (apply knight-moves pos)))
+;;(defmethod get-available-moves \n [state pos] (let [piece (get state pos)] (apply knight-moves pos)))
 (defmethod get-available-moves \b [state pos] (let [piece (get state pos)] (apply bishop-moves pos)))
 (defmethod get-available-moves \r [state pos] (let [piece (get state pos)] (apply rook-moves2 state pos)))
 ;(defmethod get-available-moves \p [state pos] (let [piece (get state pos)] (apply pawn-moves pos)))
 
-(into '() init-board-state)
+;(into '() init-board-state)
                                         ;(doc everyg)
 
 
-(println "test")
+;(println "test")
 
 
 
@@ -169,15 +139,13 @@
           (memo \s constraints q)))
   )
 
-(run* [q]
-      (== q 1))
 
 (reduce #(cons %2 %) '() '(1 2 3 4))
 
 ((fn [state pos] (get-type (vector pos (get state pos)))) init-board-state [0 1])
 
-(display-board (into {} (map #(vector % "* ") (get-available-moves  init-board-state [0 0]))))
-(get-available-moves  init-board-state [0 0])
+;(display-board (into {} (map #(vector % "* ") (get-available-moves  init-board-state [0 0]))))
+;(get-available-moves  init-board-state [0 0])
 
 
 (defn make-move [state from to]
@@ -188,7 +156,7 @@
 ;(defn valid-move? [state from to]
 ;)
 
-(display-board (make-move init-board-state [1 1] [2 1]))
+;(display-board (make-move init-board-state [1 1] [2 1]))
 
 
 ;(ns clj-cl-chess.core)
@@ -199,7 +167,7 @@
 (comment
  (let [chess-dom raw-board-type2
        cells (repeatedly 4 lvar)]
-   (run* [q]
+   (run 5 [q]
          (everyg #(membero % chess-dom)  cells)
          (== q cells)))
 
