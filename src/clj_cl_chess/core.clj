@@ -166,8 +166,8 @@
 ;(pprint (+ 1 2))
 (comment
  (let [chess-dom raw-board-type2
-       cells (repeatedly 4 lvar)]
-   (run 5 [q]
+       cells (repeatedly 1 lvar)]
+   (run 50 [q]
          (everyg #(membero % chess-dom)  cells)
          (== q cells)))
 
