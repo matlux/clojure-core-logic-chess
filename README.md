@@ -1,3 +1,11 @@
+This project has been transfered to https://github.com/matlux/clj-chess-engine
+
+See the live app under http://lambda.zone.
+
+This project is an experimentation which has stopped. This project is published for reference/research only. It is not only maintained any longer! Go to the above links to see a working Chess Engine written in Clojure.
+
+
+
 # clj-cl-chess
 
 Experiment with Core.logic. Some of the move have been modilized but other were hard to map onto core.logic. This is put on hold for the moment. I'm now implementing a solution in pure Clojure.
